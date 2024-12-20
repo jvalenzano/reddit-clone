@@ -27,23 +27,15 @@ export const getComments = query({
       .query("comments")
       .withIndex("byPost", (q) => q.eq("postId", args.postId))
       .paginate(args.paginationOpts);
-    const comments = results.page;
 
-    const authorIds = [...new Set(comments.map((comment) => comment.authorId))]
-    const authors = await Promise.all(
-        authorIds.map((id) => ctx.db.get(id))
-    )
-    const authorMap = new Map(
-        authors.map(author => [author!._id, author!.username])
-    )
     return {
       ...results,
-      page: comments.map((comment) => ({
+      page: await Promise.all(results.page.map(async (comment) => ({
         ...comment,
         author: {
-            username: authorMap.get(comment.authorId)
+            username: (await ctx.db.get(comment.authorId))?.username
         }
-      }))
+      })))
     };
   },
 });
