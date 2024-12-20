@@ -87,7 +87,7 @@ export const getSubredditPosts = query({
   handler: async (ctx, args): Promise<PaginationResult<EnrichedPost>> => {
     const subreddit = await ctx.db
       .query("subreddit")
-      .filter((q) => q.eq(q.field("name"), args.subredditName))
+      .withIndex("byName", (q) => q.eq("name", args.subredditName))
       .unique();
 
     if (!subreddit) throw new ConvexError({message: ERROR_MESSAGES.SUBREDDIT_NOT_FOUND})
@@ -109,7 +109,7 @@ export const userPosts = query({
   handler: async (ctx, args): Promise<PaginationResult<EnrichedPost>> => {
     const user = await ctx.db
       .query("users")
-      .filter((q) => q.eq(q.field("username"), args.authorUsername))
+      .withIndex("byUsername", (q) => q.eq("username", args.authorUsername))
       .unique();
 
     if (!user) throw new ConvexError({message: ERROR_MESSAGES.USER_NOT_FOUND})
@@ -150,7 +150,7 @@ export const search = query({
 
     const subredditObj = await ctx.db
       .query("subreddit")
-      .filter((q) => q.eq(q.field("name"), args.subreddit))
+      .withIndex("byName", (q) => q.eq("name", args.subreddit))
       .unique();
 
     if (!subredditObj) return [];

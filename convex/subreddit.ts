@@ -9,8 +9,11 @@ export const create = mutation({
   },
   handler: async (ctx, args) => {
     const user = await getCurrentUserOrThrow(ctx);
-    const subreddits = await ctx.db.query("subreddit").collect();
-    if (subreddits.some((s) => s.name === args.name)) {
+    const subreddit = await ctx.db
+      .query("subreddit")
+      .withIndex("byName", (q) => q.eq("name", args.name))
+      .unique();
+    if (subreddit) {
       throw new ConvexError({ message: "Subreddit already exists" });
     }
     await ctx.db.insert("subreddit", {
@@ -26,7 +29,7 @@ export const get = query({
   handler: async (ctx, args) => {
     const subreddit = await ctx.db
       .query("subreddit")
-      .filter((q) => q.eq(q.field("name"), args.name))
+      .withIndex("byName", (q) => q.eq("name", args.name))
       .unique();
     if (!subreddit) return null;
 
