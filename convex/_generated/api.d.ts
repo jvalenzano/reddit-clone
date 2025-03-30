@@ -23,6 +23,7 @@ import type {
   FilterApi,
   FunctionReference,
 } from "convex/server";
+
 /**
  * A utility for referencing Convex functions in your app's API.
  *
@@ -59,8 +60,8 @@ export declare const components: {
       add: FunctionReference<
         "mutation",
         "internal",
-        { count: number; name: string; shards?: number },
-        null
+        { count: number; name: string; shard?: number; shards?: number },
+        number
       >;
       count: FunctionReference<"query", "internal", { name: string }, number>;
       estimateCount: FunctionReference<
@@ -75,6 +76,7 @@ export declare const components: {
         { name: string; shards?: number },
         any
       >;
+      reset: FunctionReference<"mutation", "internal", { name: string }, any>;
     };
   };
 };
